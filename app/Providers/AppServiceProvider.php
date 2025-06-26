@@ -8,6 +8,7 @@ use App\Repositories\ProductRepository;
 use App\Services\Scrapers\AmazonScraper;
 use App\Services\Scrapers\JumiaScraper;
 use App\Services\ScraperService;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Application Service Provider
@@ -69,5 +70,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Any bootstrapping logic can be added here
         // For example, setting up global configurations, registering observers, etc.
+        Schema::defaultStringLength(191);
     }
 }
