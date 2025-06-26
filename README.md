@@ -162,7 +162,7 @@ scraper-app/
 
 **Scrape a single product:**
 ```bash
-php artisan scrape:product "https://www.amazon.com/product-url"
+php artisan scrape:product https://www.amazon.com/dp/B07XKXQL79"
 ```
 
 **Scrape a category (via queue):**
