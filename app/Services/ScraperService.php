@@ -1,42 +1,107 @@
 <?php
 namespace App\Services;
 
-use GuzzleHttp\Client;
-use App\Interfaces\ProductRepositoryInterface;
+use App\Services\Scrapers\ScraperInterface;
 
+/**
+ * Scraper Service
+ * 
+ * Main service for managing and coordinating web scrapers.
+ * This service implements the Factory pattern to create appropriate
+ * scrapers based on the URL and provides a unified interface for
+ * scraping operations.
+ * 
+ * Features:
+ * - Automatic scraper selection based on URL
+ * - Error handling and validation
+ * - Support for multiple scraping platforms
+ * 
+ * @see ScraperInterface
+ */
 class ScraperService
 {
-    protected ProductRepositoryInterface $productRepo;
+    /**
+     * Collection of available scrapers.
+     * 
+     * @var array<ScraperInterface>
+     */
+    protected array $scrapers;
 
-    public function __construct(ProductRepositoryInterface $productRepo)
+    /**
+     * Create a new scraper service instance.
+     * 
+     * @param iterable<ScraperInterface> $scrapers The scrapers to register
+     */
+    public function __construct(iterable $scrapers)
     {
-        $this->productRepo = $productRepo;
+        $this->scrapers = $scrapers;
     }
 
-    public function scrape(string $url): void
+    /**
+     * Get the appropriate scraper for the given URL.
+     * 
+     * Iterates through all registered scrapers to find one that
+     * supports the provided URL.
+     * 
+     * @param string $url The URL to scrape
+     * @return ScraperInterface The appropriate scraper
+     * @throws \Exception When no scraper supports the URL
+     */
+    public function getScraper(string $url): ScraperInterface
     {
-        $userAgents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64)...',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)...',
-        ];
-        $ua = $userAgents[array_rand($userAgents)];
+        // Validate URL format
+        if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new \InvalidArgumentException("Invalid URL provided: {$url}");
+        }
 
-        $client = new Client([
-            'headers' => ['User-Agent' => $ua],
-        ]);
+        // Find a scraper that supports this URL
+        foreach ($this->scrapers as $scraper) {
+            if ($scraper->supports($url)) {
+                return $scraper;
+            }
+        }
 
-        $res = $client->get($url);
-        $html = (string) $res->getBody();
+        // If no scraper is found, throw an exception
+        throw new \Exception("No scraper found for this URL: {$url}");
+    }
 
-        // TO-DO: Use DomCrawler or regex here
-        $title = 'Parsed Title';
-        $price = 'Parsed Price';
-        $image = 'Parsed Image URL';
+    /**
+     * Get all registered scrapers.
+     * 
+     * @return array<ScraperInterface> Array of all registered scrapers
+     */
+    public function getAllScrapers(): array
+    {
+        return $this->scrapers;
+    }
 
-        $this->productRepo->create([
-            'title' => $title,
-            'price' => $price,
-            'image_url' => $image,
-        ]);
+    /**
+     * Check if a URL is supported by any scraper.
+     * 
+     * @param string $url The URL to check
+     * @return bool True if supported, false otherwise
+     */
+    public function isUrlSupported(string $url): bool
+    {
+        try {
+            foreach ($this->scrapers as $scraper) {
+                if ($scraper->supports($url)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get the number of registered scrapers.
+     * 
+     * @return int Number of scrapers
+     */
+    public function getScraperCount(): int
+    {
+        return count($this->scrapers);
     }
 }

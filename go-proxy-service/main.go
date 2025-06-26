@@ -9,23 +9,17 @@ import (
 
 func main() {
 	proxies := []string{
-		"http://proxy1.example.com:8000",
-		"http://proxy2.example.com:8000",
-		"http://proxy3.example.com:8000",
+		"http://185.217.143.123:3128",
+		"http://91.214.31.234:8080",
 	}
 
-	// Random seed
 	rand.Seed(time.Now().UnixNano())
 
 	http.HandleFunc("/get-proxy", func(w http.ResponseWriter, r *http.Request) {
 		proxy := proxies[rand.Intn(len(proxies))]
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"proxy": proxy,
-		})
+		json.NewEncoder(w).Encode(map[string]string{"proxy": proxy})
 	})
 
-	println("✅ Proxy service running on http://localhost:8080")
+	println("✅ Go proxy server on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }

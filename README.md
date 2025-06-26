@@ -1,273 +1,340 @@
-# Scraper App
+# Web Scraper Application
 
-A Laravel-based web scraping application with a Go proxy service for enhanced scraping capabilities. This application allows you to scrape product data from websites and store it in a database.
+A Laravel-based web scraping application that extracts product information from various e-commerce platforms. The application follows SOLID principles, design patterns, and Laravel best practices.
 
-## Features
+## 🚀 Features
 
-- **Web Scraping**: Scrape product data (title, price, image) from websites
-- **API Endpoints**: RESTful API to retrieve scraped products
-- **Proxy Service**: Go-based proxy service for rotating proxy IPs
-- **Database Storage**: Store scraped data in MySQL/SQLite database
-- **Command Line Interface**: Artisan commands for scraping operations
-- **Modern UI**: Built with Tailwind CSS and Vite
+- **Multi-platform Scraping**: Support for Amazon and Jumia
+- **Queue-based Processing**: Background job processing for large-scale scraping
+- **Proxy Support**: Rotating proxy support to avoid rate limiting
+- **RESTful API**: JSON API for product management
+- **Error Handling**: Comprehensive error handling and logging
+- **Repository Pattern**: Clean data access layer
+- **Strategy Pattern**: Extensible scraper architecture
 
-## Requirements
+## 📋 Requirements
 
 ### System Requirements
-- **PHP**: 8.2 or higher
-- **Composer**: Latest version
-- **Node.js**: 18.x or higher
-- **npm**: Latest version
-- **Go**: 1.24.4 or higher (for proxy service)
-- **Database**: MySQL 8.0+ or SQLite 3
+
+- **PHP**: ^8.2 (PHP 8.2 or higher)
+- **Laravel**: ^12.0 (Laravel 12.x)
+- **Go**: ^1.24.4 (Go 1.24.4 or higher) - Required for the Go proxy service
+- **Web Server**: Apache/Nginx (for production) or PHP built-in server (for development)
+- **Database**: MySQL, PostgreSQL, SQLite, or SQL Server
+- **Memory**: Minimum 512MB RAM (1GB+ recommended for large scraping operations)
+- **Storage**: At least 100MB free space for logs and temporary files
 
 ### PHP Extensions
-- BCMath PHP Extension
-- Ctype PHP Extension
-- cURL PHP Extension
-- DOM PHP Extension
-- Fileinfo PHP Extension
-- JSON PHP Extension
-- Mbstring PHP Extension
-- OpenSSL PHP Extension
-- PCRE PHP Extension
-- PDO PHP Extension
-- Tokenizer PHP Extension
-- XML PHP Extension
 
-## Installation
+The following PHP extensions are required:
+- `curl` - For HTTP requests
+- `dom` - For HTML parsing
+- `mbstring` - For string manipulation
+- `xml` - For XML processing
+- `json` - For JSON handling
+- `pdo` - For database operations
+- `openssl` - For HTTPS requests
 
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd scraper-app
-```
+### Dependencies
 
-### 2. Install PHP Dependencies
-```bash
-composer install
-```
+#### Core Dependencies
+- **Laravel Framework**: ^12.0 - PHP web framework
+- **Guzzle HTTP**: ^7.9 - HTTP client for making requests
+- **Symfony DOM Crawler**: ^7.3 - HTML/XML parsing and navigation
+- **Laravel Tinker**: ^2.10.1 - REPL for Laravel
 
-### 3. Install Node.js Dependencies
-```bash
-npm install
-```
+#### Development Dependencies
+- **Faker**: ^1.23 - Data generation for testing
+- **Laravel Pail**: ^1.2.2 - Log viewer
+- **Laravel Pint**: ^1.13 - PHP code style fixer
+- **Laravel Sail**: ^1.41 - Docker development environment
+- **Mockery**: ^1.6 - Mocking framework for testing
+- **PHPUnit**: ^11.5.3 - Unit testing framework
+- **Nunomaduro Collision**: ^8.6 - Error reporting
 
-### 4. Environment Setup
-```bash
-# Copy environment file
-cp .env.example .env
+#### Frontend Dependencies (Optional)
+- **Vite**: ^6.2.4 - Build tool
+- **Tailwind CSS**: ^4.0.0 - CSS framework
+- **Axios**: ^1.8.2 - HTTP client for JavaScript
+- **Laravel Vite Plugin**: ^1.2.0 - Vite integration for Laravel
 
-# Generate application key
-php artisan key:generate
-```
+### Optional Requirements
 
-### 5. Configure Database
-Edit the `.env` file and configure your database settings:
+- **Redis**: For queue processing (recommended for production)
+- **Supervisor**: For process management in production
+- **Proxy Service**: For rotating IP addresses during scraping
+- **Go Proxy Service**: Custom proxy service included in the project
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=scraper_app
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-```
+### Browser Requirements (for scraping)
 
-For SQLite (development):
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database.sqlite
-```
+The scrapers are designed to work with modern web browsers and may require:
+- JavaScript rendering capabilities (for dynamic content)
+- User-Agent rotation
+- Cookie management
+- Session handling
 
-### 6. Run Database Migrations
-```bash
-php artisan migrate
-```
-
-### 7. Build Frontend Assets
-```bash
-npm run build
-```
-
-## Running the Application
-
-### Laravel Application
-
-#### Development Mode
-```bash
-# Start the Laravel development server
-php artisan serve
-
-# In another terminal, start the queue worker (if using queues)
-php artisan queue:work
-
-# In another terminal, start Vite for frontend development
-npm run dev
-```
-
-#### Production Mode
-```bash
-# Build assets for production
-npm run build
-
-# Start the server (configure your web server accordingly)
-php artisan serve --host=0.0.0.0 --port=8000
-```
-
-### Go Proxy Service
-
-The Go proxy service provides rotating proxy functionality for the scraper.
-
-#### Navigate to Proxy Service Directory
-```bash
-cd go-proxy-service
-```
-
-#### Install Go Dependencies
-```bash
-go mod tidy
-```
-
-#### Run the Proxy Service
-```bash
-go run main.go
-```
-
-The proxy service will start on `http://localhost:8080` and provide the following endpoint:
-- `GET /get-proxy` - Returns a random proxy from the configured list
-
-#### Build Executable (Optional)
-```bash
-# For Windows
-go build -o proxy-service.exe main.go
-
-# For Linux/Mac
-go build -o proxy-service main.go
-
-# Run the executable
-./proxy-service
-```
-
-## Usage
-
-### Command Line Scraping
-```bash
-# Scrape a product from a URL
-php artisan scrape:product "https://example.com/product-page"
-```
-
-### API Endpoints
-
-#### Get All Products
-```bash
-GET /api/products
-```
-
-Response:
-```json
-{
-    "data": [
-        {
-            "id": 1,
-            "title": "Product Title",
-            "price": "$99.99",
-            "image_url": "https://example.com/image.jpg",
-            "created_at": "2025-01-01T00:00:00.000000Z",
-            "updated_at": "2025-01-01T00:00:00.000000Z"
-        }
-    ]
-}
-```
-
-### Web Interface
-Visit `http://localhost:8000` to access the web interface.
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 scraper-app/
 ├── app/
-│   ├── Console/Commands/     # Artisan commands
-│   ├── Http/Controllers/     # API controllers
-│   ├── Interfaces/          # Repository interfaces
-│   ├── Models/              # Eloquent models
-│   ├── Repositories/        # Data access layer
-│   └── Services/            # Business logic
-├── database/
-│   ├── migrations/          # Database migrations
-│   └── seeders/            # Database seeders
-├── go-proxy-service/        # Go proxy service
-├── resources/
-│   ├── css/                # Stylesheets
-│   ├── js/                 # JavaScript files
-│   └── views/              # Blade templates
-└── routes/
-    └── api.php             # API routes
+│   ├── Console/Commands/
+│   │   └── ScrapeProduct.php          # Artisan command for single product scraping
+│   ├── Exceptions/
+│   │   └── UnsupportedSourceException.php  # Custom exception for unsupported URLs
+│   ├── Helpers/
+│   │   └── ProxyHelper.php            # Proxy management utility
+│   ├── Http/Controllers/Api/
+│   │   └── ProductController.php      # RESTful API controller
+│   ├── Interfaces/
+│   │   └── ProductRepositoryInterface.php  # Repository interface
+│   ├── Jobs/
+│   │   └── ScrapeCategoryJob.php      # Queue job for category scraping
+│   ├── Models/
+│   │   └── Product.php                # Product Eloquent model
+│   ├── Providers/
+│   │   └── AppServiceProvider.php     # Service provider for DI
+│   ├── Repositories/
+│   │   └── ProductRepository.php      # Repository implementation
+│   └── Services/Scrapers/
+│       ├── AmazonScraper.php          # Amazon-specific scraper
+│       ├── JumiaScraper.php           # Jumia-specific scraper
+│       ├── ScraperInterface.php       # Scraper contract
+│       └── ScraperService.php         # Scraper factory service
+├── database/migrations/
+│   └── 2025_06_25_053649_create_products_table.php
+├── routes/
+│   └── api.php                        # API routes
+└── README.md
 ```
 
-## Configuration
+## 🏗️ Architecture
 
-### Proxy Service Configuration
-Edit the proxy list in `go-proxy-service/main.go`:
+### Design Patterns Used
 
-```go
-proxies := []string{
-    "http://your-proxy1.com:8000",
-    "http://your-proxy2.com:8000",
-    "http://your-proxy3.com:8000",
-}
+1. **Repository Pattern**: Abstracts data access logic
+2. **Strategy Pattern**: Allows easy addition of new scrapers
+3. **Factory Pattern**: Creates appropriate scrapers based on URL
+4. **Dependency Injection**: Loose coupling between components
+
+### SOLID Principles
+
+- **Single Responsibility**: Each class has one clear purpose
+- **Open/Closed**: Easy to extend with new scrapers
+- **Liskov Substitution**: All scrapers implement the same interface
+- **Interface Segregation**: Clean, focused interfaces
+- **Dependency Inversion**: Depends on abstractions, not concretions
+
+## 🛠️ Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd scraper-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Database setup**
+   ```bash
+   php artisan migrate
+   ```
+
+5. **Proxy configuration** (optional)
+   ```bash
+   # Create proxy file
+   touch storage/app/proxies.txt
+   # Add proxies in format: http://host:port or https://host:port
+   ```
+
+## 📖 Usage
+
+### Command Line
+
+**Scrape a single product:**
+```bash
+php artisan scrape:product "https://www.amazon.com/product-url"
 ```
 
-### Scraper Configuration
-The scraper service uses rotating user agents and can be configured in `app/Services/ScraperService.php`.
+**Scrape a category (via queue):**
+```bash
+php artisan queue:work
+# Then dispatch the job programmatically or via command
+```
 
-## Development
+### API Endpoints
 
-### Running Tests
+**Get all products:**
+```bash
+GET /api/products
+```
+
+**Get specific product:**
+```bash
+GET /api/products/{external_id}
+```
+
+**Get statistics:**
+```bash
+GET /api/products/stats/statistics
+```
+
+### Queue Processing
+
+Start the queue worker:
+```bash
+php artisan queue:work
+```
+
+## 🔧 Configuration
+
+### Proxy Setup
+
+Create `storage/app/proxies.txt` with one proxy per line:
+```
+http://proxy1.example.com:8080
+http://proxy2.example.com:8080
+https://proxy3.example.com:8080
+```
+
+### Go Proxy Service
+
+**Prerequisite:** Go language must be installed on your server or local machine to run the Go proxy service.
+
+The project includes a custom Go proxy service for rotating proxy management:
+
+1. **Navigate to the Go proxy service directory:**
+   ```bash
+   cd go-proxy-service
+   ```
+
+2. **Run the Go proxy server:**
+   ```bash
+   go run main.go
+   ```
+
+3. **Access the proxy service:**
+   - The service will be available at: `http://localhost:8080/get-proxy`
+   - Returns a random proxy from the configured list in JSON format
+   - Example response: `{"proxy": "http://185.217.143.123:3128"}`
+
+4. **Requirements:**
+   - Go 1.24.4 or higher
+   - The service uses the standard Go HTTP library (no external dependencies)
+
+**Note:** The Go proxy service runs independently from the Laravel application and provides a simple API endpoint for proxy rotation. You can modify the proxy list in `go-proxy-service/main.go` to add your own proxies.
+
+### Queue Configuration
+
+Configure your queue driver in `.env`:
+```env
+QUEUE_CONNECTION=database
+```
+
+## 🧪 Testing
+
+Run the test suite:
 ```bash
 php artisan test
 ```
 
-### Code Style
-```bash
-# Format PHP code
-./vendor/bin/pint
+## 📝 Code Quality
 
-# Format JavaScript/CSS
-npm run build
-```
+### Documentation
 
-### Database Seeding
-```bash
-php artisan db:seed
-```
+- All classes and methods are fully documented with PHPDoc
+- Clear inline comments explain complex logic
+- README provides comprehensive usage instructions
 
-## Troubleshooting
+### Error Handling
 
-### Common Issues
+- Comprehensive try-catch blocks
+- Detailed error logging
+- Graceful failure handling
+- User-friendly error messages
 
-1. **Permission Denied**: Ensure proper file permissions for storage and bootstrap/cache directories
-2. **Database Connection**: Verify database credentials in `.env` file
-3. **Proxy Service Not Starting**: Check if port 8080 is available
-4. **Composer Issues**: Clear composer cache with `composer clear-cache`
+### Best Practices
 
-### Logs
-- Laravel logs: `storage/logs/laravel.log`
-- Application logs: Use `php artisan pail` for real-time logs
+- PSR-12 coding standards
+- Type hints and return types
+- Proper exception handling
+- Dependency injection
+- Interface segregation
 
-## Contributing
+## 🔄 Adding New Scrapers
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+1. **Create new scraper class:**
+   ```php
+   class NewPlatformScraper implements ScraperInterface
+   {
+       public function supports(string $url): bool
+       {
+           return str_contains($url, 'newplatform.');
+       }
+       
+       public function scrapeProduct(string $url): array
+       {
+           // Implementation
+       }
+       
+       public function scrapeCategory(string $url): array
+       {
+           // Implementation
+       }
+   }
+   ```
 
-## License
+2. **Register in AppServiceProvider:**
+   ```php
+   $scrapers = [
+       new AmazonScraper(),
+       new JumiaScraper(),
+       new NewPlatformScraper(), // Add here
+   ];
+   ```
+
+## 🚨 Error Handling
+
+The application includes comprehensive error handling:
+
+- **Network errors**: Retry logic with exponential backoff
+- **Rate limiting**: Proxy rotation and delays
+- **Invalid data**: Validation and sanitization
+- **Missing elements**: Graceful fallbacks
+- **Queue failures**: Job retry mechanisms
+
+## 📊 Logging
+
+All operations are logged with appropriate levels:
+- `info`: Successful operations
+- `warning`: Non-critical issues
+- `error`: Critical failures
+- `debug`: Detailed debugging information
+
+## 🤝 Contributing
+
+1. Follow PSR-12 coding standards
+2. Add comprehensive documentation
+3. Include error handling
+4. Write tests for new features
+5. Update README if needed
+
+## 📄 License
 
 This project is licensed under the MIT License.
 
-## Support
+## 🆘 Support
 
-For support and questions, please open an issue in the repository.
+For issues and questions:
+1. Check the logs in `storage/logs/`
+2. Review the documentation
+3. Create an issue with detailed information

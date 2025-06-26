@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('external_id')->unique();
             $table->string('title');
             $table->string('price');
-            $table->string('image_url');
+            $table->text('image_url');
             $table->timestamps();
         });
     }
